@@ -1,0 +1,106 @@
+﻿openapi: 3.0.3
+info:
+  title: Currency Exchange API
+  version: 1.0.0
+  description: |
+    API for retrieving currency exchange rates via API-Ninjas.
+    Allows conversion between currencies and displays results through Swagger UI.
+
+servers:
+  - url: http://localhost:4000
+    description: Local development server
+  - url: https://your-production-url.com
+    description: Production server
+
+paths:
+  /api/exchange:
+    post:
+      tags:
+        - Exchange
+      summary: Get currency exchange rate
+      description: |
+        Returns the current exchange rate between two currencies.
+        Uses API-Ninjas to fetch up-to-date data.
+      operationId: getExchangeRate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExchangeRequest'
+      responses:
+        '200':
+          description: Successful response with exchange rate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeResponse'
+        '400':
+          description: Bad request (identical currencies)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api-docs:
+    get:
+      tags:
+        - Documentation
+      summary: Swagger UI documentation
+      description: |
+        Interactive API documentation in Swagger UI format.
+        Available at this URL in your browser.
+      responses:
+        '200':
+          description: Swagger UI HTML page
+
+components:
+  schemas:
+    ExchangeRequest:
+      type: object
+      properties:
+        from:
+          type: string
+          minLength: 3
+          maxLength: 3
+          example: "USD"
+          description: Currency code (3 letters) to convert from
+        to:
+          type: string
+          minLength: 3
+          maxLength: 3
+          example: "EUR"
+          description: Currency code (3 letters) to convert to
+      required:
+        - from
+        - to
+
+    ExchangeResponse:
+      type: object
+      properties:
+        currency_pair:
+          type: string
+          example: "USD_EUR"
+          description: Currency pair
+        exchange_rate:
+          type: number
+          format: float
+          example: 0.92
+          description: Current exchange rate
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Error retrieving exchange rate"
+          description: Error message
+
+security:
+  - ApiKeyAuth: []
